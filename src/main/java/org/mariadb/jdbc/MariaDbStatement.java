@@ -1437,7 +1437,6 @@ public class MariaDbStatement implements Statement, Cloneable {
    * @throws SQLException throw exception if batch error occur
    */
   private void internalBatchExecution(int size) throws SQLException {
-
     executeQueryPrologue(true);
     results =
         new Results(

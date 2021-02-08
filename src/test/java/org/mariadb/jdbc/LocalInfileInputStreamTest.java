@@ -67,6 +67,7 @@ public class LocalInfileInputStreamTest extends BaseTest {
   public static void initClass() throws SQLException {
     try (Statement stmt = sharedConnection.createStatement()) {
       stmt.execute("CREATE TABLE LocalInfileInputStreamTest(id int, test varchar(100))");
+      stmt.execute("CREATE TABLE LocalInfileInputStreamTest2(id int, test varchar(100))");
       stmt.execute("CREATE TABLE ttlocal(id int, test varchar(100))");
       stmt.execute("CREATE TABLE ldinfile(a varchar(10))");
       stmt.execute(
@@ -79,9 +80,28 @@ public class LocalInfileInputStreamTest extends BaseTest {
   public static void afterClass() throws SQLException {
     try (Statement stmt = sharedConnection.createStatement()) {
       stmt.execute("DROP TABLE IF EXISTS LocalInfileInputStreamTest");
+      stmt.execute("DROP TABLE IF EXISTS LocalInfileInputStreamTest2");
       stmt.execute("DROP TABLE IF EXISTS ttlocal");
       stmt.execute("DROP TABLE IF EXISTS ldinfile");
       stmt.execute("DROP TABLE IF EXISTS `infile`");
+    }
+  }
+
+  @Test
+  public void loadDataInBatch() throws SQLException {
+    Assume.assumeFalse((!isMariadbServer() && minVersion(8, 0, 3)));
+    Assume.assumeTrue(System.getenv("SKYSQL") == null && System.getenv("SKYSQL_HA") == null);
+
+    String batch_update =
+        "LOAD DATA LOCAL INFILE 'dummy.tsv' INTO TABLE LocalInfileInputStreamTest2 (id, test)";
+    String builder = "1\thello\n2\tworld\n";
+    try (Connection con = setConnection()) {
+      Statement smt = con.createStatement();
+      InputStream inputStream = new ByteArrayInputStream(builder.getBytes());
+      ((MariaDbStatement) smt).setLocalInfileInputStream(inputStream);
+      smt.addBatch(batch_update);
+      smt.addBatch("SET UNIQUE_CHECKS=1");
+      smt.executeBatch();
     }
   }
 
