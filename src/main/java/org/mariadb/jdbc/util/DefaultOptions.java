@@ -872,15 +872,15 @@ public enum DefaultOptions {
       // loop on properties,
       // - check DefaultOption to check that property value correspond to type (and range)
       // - set values
-      for (final String key : properties.stringPropertyNames()) {
-        final String propertyValue = properties.getProperty(key);
-        final DefaultOptions o = OptionUtils.OPTIONS_MAP.get(key);
+      for (final Object keyObj : properties.keySet()) {
+        final Object propertyValue = properties.get(keyObj);
+        final DefaultOptions o = OptionUtils.OPTIONS_MAP.get(keyObj);
         if (o != null && propertyValue != null) {
           final Field field = Options.class.getField(o.optionName);
           if (o.objType.equals(String.class)) {
             field.set(options, propertyValue);
           } else if (o.objType.equals(Boolean.class)) {
-            switch (propertyValue.toLowerCase()) {
+            switch (propertyValue.toString().toLowerCase()) {
               case "":
               case "1":
               case "true":
@@ -902,7 +902,7 @@ public enum DefaultOptions {
             }
           } else if (o.objType.equals(Integer.class)) {
             try {
-              final Integer value = Integer.parseInt(propertyValue);
+              final Integer value = Integer.parseInt(propertyValue.toString());
               assert o.minValue != null;
               assert o.maxValue != null;
               if (value.compareTo((Integer) o.minValue) < 0
@@ -930,7 +930,7 @@ public enum DefaultOptions {
             }
           } else if (o.objType.equals(Long.class)) {
             try {
-              final Long value = Long.parseLong(propertyValue);
+              final Long value = Long.parseLong(propertyValue.toString());
               assert o.minValue != null;
               assert o.maxValue != null;
               if (value.compareTo((Long) o.minValue) < 0
@@ -960,7 +960,7 @@ public enum DefaultOptions {
         } else {
           // keep unknown option:
           // those might be used in authentication or identity plugin
-          options.nonMappedOptions.setProperty(key, properties.getProperty(key));
+          options.nonMappedOptions.put(keyObj, propertyValue);
         }
       }
 
