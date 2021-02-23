@@ -426,7 +426,8 @@ public class SslTest extends BaseTest {
             + (password != null && !"".equals(password) ? "&password=" + password : "")
             + (param != null ? param : "");
     ;
-    Properties connProps = new Properties(info);
+    Properties connProps = new Properties();
+    connProps.putAll(info);
     connProps.setProperty("user", user);
     if (pwd != null) {
       connProps.setProperty("password", pwd);
