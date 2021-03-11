@@ -889,10 +889,7 @@ public class MariaDbConnection implements Connection {
     String sql = "SELECT @@tx_isolation";
 
     if (!protocol.isServerMariaDb()) {
-      if ((protocol.getMajorServerVersion() >= 8 && protocol.versionGreaterOrEqual(8, 0, 3))
-          || (protocol.getMajorServerVersion() < 8 && protocol.versionGreaterOrEqual(5, 7, 20))) {
-        sql = "SELECT @@transaction_isolation";
-      }
+      sql = "SELECT @@transaction_isolation";
     }
 
     ResultSet rs = stmt.executeQuery(sql);
@@ -903,6 +900,7 @@ public class MariaDbConnection implements Connection {
           return Connection.TRANSACTION_REPEATABLE_READ;
 
         case "READ-UNCOMMITTED":
+        case "READ UNCOMMITTED":
           return Connection.TRANSACTION_READ_UNCOMMITTED;
 
         case "READ-COMMITTED":
